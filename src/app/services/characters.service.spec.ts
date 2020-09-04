@@ -1,0 +1,235 @@
+import { TestBed, async } from '@angular/core/testing';
+import { Spy, createSpyFromClass } from 'jasmine-auto-spies';
+import { ObserverSpy } from '@hirez_io/observer-spy';
+import { CharactersService } from './characters.service';
+import { Character } from './character.model';
+import { HttpClient } from '@angular/common/http';
+import { observable } from 'rxjs';
+
+describe('CharactersService', () => {
+  let service: CharactersService;
+  let httpSpy: Spy<HttpClient>;
+  const characters: Character[] = [
+    {
+      "id": 1,
+      "name": "Cloud Strife",
+      "backstory": "Former 1st Class SOLDIER. After defecting from Shinra, Cloud began work as a mercenary for hire in Midgar. With his trusty broadsword in hand, he always gets the job done.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/5/5b/Cloud_Strife_from_FFVII_Remake_promo_render.png/revision/latest/scale-to-width-down/137?cb=20190910180154",
+      "type": "main"
+    },
+    {
+      "id": 2,
+      "name": "Tifa Lockhart",
+      "backstory": "Bright and optimistic, Tifa always cheers up the others when they're down. But don't let her looks fool you, she can decimate almost any enemy with her fists...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/9/9c/Tifa_Lockhart_from_FFVII_Remake_promo_render.png/revision/latest/scale-to-width-down/153?cb=20200613170220",
+      "type": "main"
+    },
+    {
+      "id": 3,
+      "name": "Barret Wallace",
+      "backstory": "Head of the underground resistance movement AVALANCHE, Barret depends on brute strength and his 'Gun-arm' to see him through...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/a/a8/Barret_Wallace_from_FFVII_Remake_promo_render.png/revision/latest/scale-to-width-down/271?cb=20191126233717",
+      "type": "main"
+    },
+    {
+      "id": 4,
+      "name": "Aerith Gainsborough",
+      "backstory": "Young, beautiful, and somewhat mysterious, Aerith met Cloud while selling flowers on the streets of Midgar...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/4/41/Aerith_Gainsborough_from_FFVII_Remake_promo_render.png/revision/latest/scale-to-width-down/101?cb=20200303194438",
+      "type": "main"
+    },
+    {
+      "id": 5,
+      "name": "Cid Highwind",
+      "backstory": "Cid is a tough talking, warm-hearted old pilot who hasn't forgotten his dreams...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/b/b0/CidHighwind-FFVIIArt.png/revision/latest/scale-to-width-down/350?cb=20200520032457",
+      "type": "main"
+    },
+    {
+      "id": 6,
+      "name": "Vincent Valentine",
+      "backstory": "A mystical man, stern and upright while at the same time dark and mysterious...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/5/5b/Cloud_Strife_from_FFVII_Remake_promo_render.png/revision/latest/scale-to-width-down/137?cb=20190910180154",
+      "type": "main"
+    },
+    {
+      "id": 7,
+      "name": "Yuffie Kisaragi",
+      "backstory": "Cunning and sly, she may look like a common thief, but Yuffie is a very skilled and powerful ninja...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/2/20/Yuffie-FFVIIArt.png/revision/latest/scale-to-width-down/297?cb=20200520031041",
+      "type": "main"
+    },
+    {
+      "id": 8,
+      "name": "Cait Sith",
+      "backstory": "Cait Sith rides on the back of a huge stuffed Mog he magically brought to life. Megaphone in hand, he's always shouting orders and creating dopey attacks...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/6/65/CaitSith-FFVIIArt.png/revision/latest/scale-to-width-down/350?cb=20200520033612",
+      "type": "main"
+    },
+    {
+      "id": 9,
+      "name": "Red XIII",
+      "backstory": "Just as his name implies, he is an animal with fire-red fur. But under his fierce exterior is an intelligence surpassing that of any human's...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/f/f0/Red_XIII_from_FFVII_Remake_render.png/revision/latest/scale-to-width-down/350?cb=20200317014325",
+      "type": "main"
+    },
+    {
+      "id": 10,
+      "name": "Jessie Rasberry",
+      "backstory": "Jessie is the technical expert of Barret's Avalanche cell, providing them with the explosives used in the bombings, minor explosives used on their missions, fake IDs, and other procured items. Although she is generally confident and upbeat, she is burdened with guilt at the devastation caused by her bombs.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/1/1d/Jessie_from_Final_Fantasy_VII_Remake_render.png/revision/latest/scale-to-width-down/169?cb=20200303193240",
+      "type": "supporting"
+    },
+    {
+      "id": 11,
+      "name": "Biggs",
+      "backstory": "Biggs is the strategist of Barret's Avalanche cell, responsible for planning out their missions. He is calm and rational in contrast to Barret's volatility, and is very close to Wedge and Jessie. He is affectionate with children. Not one to fight on the front lines often, he takes on more of a support role in Avalanche.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/0/04/Biggs_FFVII_Remake.png/revision/latest/scale-to-width-down/150?cb=20200309222655",
+      "type": "supporting"
+    },
+    {
+      "id": 12,
+      "name": "Wedge",
+      "backstory": "Wedge contributes to Barret’s Avalanche cell by gathering information and placating rival groups using his extensive list of contacts and his personal charm. Optimistic and thoughtful, his positive mood helps to ease tension between his allies. He is close to Biggs and Jessie, and admires Cloud.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/4/4a/Wedge_FFVII_Remake.png/revision/latest/scale-to-width-down/224?cb=20200309222716",
+      "type": "supporting"
+    },
+    {
+      "id": 13,
+      "name": "Marlene Wallace",
+      "backstory": "She is the adopted daughter of Barret Wallace. In the remake, she is friends with an older girl called Betty who also lives in the Sector 7 Slums.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/c/c2/Marlene_Wallace_from_FFVII_Remake_render.png/revision/latest/scale-to-width-down/199?cb=20200523004230",
+      "type": "supporting"
+    },
+    {
+      "id": 14,
+      "name": "Johnny",
+      "backstory": "He is a purehearted troublemaker who lives in the Sector 7 Undercity with his parents and has a crush on Tifa. He gets into various trouble trying to help and impress both Cloud and Tifa, and serves as a recurring comic relief character.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/f/ff/Johnny_from_FFVII_Remake_render.png/revision/latest/scale-to-width-down/155?cb=20200523143550",
+      "type": "supporting"
+    },
+    {
+      "id": 15,
+      "name": "Sephiroth",
+      "backstory": "There was one SOLDIER named Sephiroth, who was better than the rest, but when he found out about the terrible experiments that made him, he began to hate Shinra. And then, over time, he began to hate everything.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/1/17/Sephiroth_FFVII_Remake_render.png/revision/latest/scale-to-width-down/168?cb=20191227003555",
+      "type": "bad"
+    },
+    {
+      "id": 16,
+      "name": "Jenova",
+      "backstory": "Jenova was a Calamity that fell from the sky a long, long time ago, and tried to destroy the planet...",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/9/90/Jenova_Dreamweaver_from_FFVII_Remake_render.png/revision/latest/scale-to-width-down/400?cb=20200508164756",
+      "type": "bad"
+    },
+    {
+      "id": 17,
+      "name": "Rufus Shinra",
+      "backstory": "Rufus Shinra is the vice president of the Shinra Electric Power Company through. He most likely gained the title for being President Shinra's son. He is a major antagonist during Final Fantasy VII and an important supporting character on a majority of its expanded universe.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/d/dc/Rufus_Shinra_from_Final_Fantasy_VII_Remake_render.png/revision/latest/scale-to-width-down/160?cb=20200407045927",
+      "type": "bad"
+    },
+    {
+      "id": 18,
+      "name": "President Shinra",
+      "backstory": "President Shinra leads the Shinra Electric Power Company until his untimely murder by Sephiroth. President Shinra has three known children: two illegitimate sons and Rufus Shinra, the heir to Shinra's fortune. It is implied President Shinra has a wife, but she has never been depicted.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/5/52/President_Shinra_FFVII_Remake_render.png/revision/latest/scale-to-width-down/164?cb=20200303194156",
+      "type": "bad"
+    },
+    {
+      "id": 19,
+      "name": "Professor Hojo",
+      "backstory": "Hojo is the main mastermind behind SOLDIER and the Jenova Project, and initially heads the Shinra Electric Power Company's Science Research Division. His goals differ from Shinra's, with a focus on scientific pursuits and monitoring the actions of his greatest creation.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/f/f8/Professor_Hojo_from_FFVII_Remake.png/revision/latest/scale-to-width-down/192?cb=20200214204800",
+      "type": "bad"
+    },
+    {
+      "id": 20,
+      "name": "Reeve Tuesti",
+      "backstory": "Reeve Tuesti is in charge of Urban Development at the Shinra Electric Power Company. Reeve was born in 1972, making him thirty-five during the events of Final Fantasy VII.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/7/77/Reeve_Tuesti_from_Final_Fantasy_VII_Remake_render.png/revision/latest/scale-to-width-down/157?cb=20200407050159",
+      "type": "bad"
+    },
+    {
+      "id": 21,
+      "name": "Reno",
+      "backstory": "Reno is a prominent member of the Turks. He is often accompanied by fellow Turk and partner, Rude, and the two are implied to be friends despite their contrasting personalities.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/c/ca/FF7_Remake_Reno_Full_Body_Render.png/revision/latest/scale-to-width-down/144?cb=20191204155359",
+      "type": "bad"
+    },
+    {
+      "id": 22,
+      "name": "Rude",
+      "backstory": "Rude is a prominent member of the Turks—a special task force within the Shinra Electric Power Company's General Affairs division. Often accompanied by his partner and apparent friend Reno, the two act as field operatives. A reticent man of few words, Rude takes on his missions silently and professionally. He prefers to use his fists and physical strength in battle and is a competent helicopter pilot.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/f/f4/FF7_Remake_Rude_Full_Body_Render.png/revision/latest/scale-to-width-down/132?cb=20191204155506",
+      "type": "bad"
+    },
+    {
+      "id": 23,
+      "name": "Tseng",
+      "backstory": "Tseng is the leader of the Turks. Tseng is stern, no-nonsense, and sometimes temperamental. He has known Aerith Gainsborough since she was a child and has special feelings for her, thus never completing his long-delayed mission to bring her to the Shinra Electric Power Company.",
+      "picture": "https://static.wikia.nocookie.net/finalfantasy/images/f/f8/Professor_Hojo_from_FFVII_Remake.png/revision/latest/scale-to-width-down/192?cb=20200214204800",
+      "type": "bad"
+    }
+  ];
+
+  beforeEach(async(() => {
+    httpSpy = createSpyFromClass(HttpClient);
+    TestBed.configureTestingModule({
+      providers: [
+        CharactersService,
+        { provide: HttpClient, useValue: httpSpy}
+      ]
+    });
+    service = TestBed.inject(CharactersService);
+  }));
+
+  describe('INIT', () => {
+    it('WHEN component initialized THEN component exists', () => {
+      expect(service).toBeTruthy();
+    });
+  });
+
+  describe('METHOD: getAllCharacters', () => {
+    let observerSpy: ObserverSpy<Character[]>;
+    beforeEach(() => {
+      observerSpy = new ObserverSpy();
+    });
+
+    it('WHEN method called THEN return all characters and set the subject', () => {
+      //GIVEN
+      httpSpy.get.and.nextWith(characters);
+      //WHEN
+      service.getAllCharacters().subscribe(observerSpy);
+
+      //THEN
+      const returnedValue = observerSpy.getFirstValue();
+      const firstCharcter = returnedValue[0];
+      const lastCharacter = returnedValue[22];
+      expect(returnedValue.length).toBe(23);
+      expect(firstCharcter.name).toBe('Cloud Strife');
+      expect(lastCharacter.name).toBe('Tseng');
+    });
+  });
+
+  describe('METHOD: getGoodCharacters', () => {
+    let observerSpy: ObserverSpy<Character[]>;
+    beforeEach(() => {
+      observerSpy = new ObserverSpy();
+    });
+    it('WHEN good characters exist THEN return only good characters', () => {
+      //GIVEN
+      service['charactersSubject'].next(characters)
+      //WHEN
+      service.getGoodCharacters().subscribe(observerSpy)
+      //THEN
+      const returnedValue = observerSpy.getFirstValue();
+      const firstCharacter = returnedValue[0];
+      const lastCharacter = returnedValue[returnedValue.length - 1];
+      expect(returnedValue.length).toBe(9);
+      expect(firstCharacter.id).toEqual(1);
+      expect(lastCharacter.id).toEqual(9);
+    });
+  });
+});
+

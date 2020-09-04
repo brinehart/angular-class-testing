@@ -1,6 +1,13 @@
-# AngularClassTesting
+# Angular Class Testing
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.7.
+This is a basic app that can help teach how to test various types of units in an Angular app. We go over testing component initialization, public methods, event handling, asynchronous methods including Observables, and synchronous methods.
+
+## Packages Used
+Jasmine Auto Spy - Easy and type safe way to write spies for jasmine tests, for both sync and async (promises, Observables) returning methods.
+https://github.com/hirezio/jasmine-auto-spies
+
+Observer Spy - An easy to understand, un-complex way to test complex observables
+https://github.com/hirezio/observer-spy
 
 ## Development server
 

@@ -1,0 +1,10 @@
+<form [formGroup]="nameForm" (ngSubmit)="onSubmit()">
+  <div class="form-group d-flex flex-row">
+    <label>Gimme Your Name</label>
+    <input class="form-control" formControlName="name" />
+    <button type="submit" class="button btn-primary ml-3" [disabled]="!nameForm.valid">
+      Submit
+    </button>
+  </div>
+</form>
+<h2 *ngIf="name">{{name}}</h2>
